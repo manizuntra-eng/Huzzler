@@ -1,175 +1,28 @@
-// require("dotenv").config();
-// import express, { json, static } from "express";
-// import cors from "cors";
-// import { join } from "path";
-// import session from "express-session";
-// import { initialize, session as _session, serializeUser, deserializeUser, use, authenticate } from "passport";
-// import { Strategy as GoogleStrategy } from "passport-google-oauth20";
-// import connectDB from "./config/db";
-// import { findById, findOne, create } from "./models/User";
-// import authRoutes from "./routes/auth";
-// import portfolioRoutes from "./routes/portfolio";
-// import serviceRoutes from "./routes/service"; // ✅ service route correctly placed
-// import mongoose from "mongoose";
+// server.js
 
-// // ✅ Initialize Express app FIRST
-// const app = express();
-
-// // ✅ Middlewares
-// app.use(
-//   cors({
-//     origin: "http://localhost:5173", // frontend URL
-//     credentials: true,
-//   })
-// );
-// app.use(json({ limit: "10mb" }));
-// app.use("/uploads", static(join(__dirname, "uploads")));
-
-// // ✅ Session middleware
-// app.use(
-//   session({
-//     secret: process.env.SESSION_SECRET || "your_secret_key",
-//     resave: false,
-//     saveUninitialized: false,
-//   })
-// );
-
-// // ✅ Passport middleware
-// app.use(initialize());
-// app.use(_session());
-
-// // ✅ Serialize / Deserialize user
-// serializeUser((user, done) => done(null, user.id));
-// deserializeUser(async (id, done) => {
-//   try {
-//     const user = await findById(id);
-//     done(null, user);
-//   } catch (err) {
-//     done(err, null);
-//   }
-// });
-
-// // ✅ Google OAuth Strategy
-// use(
-//   new GoogleStrategy(
-//     {
-//       clientID: process.env.GOOGLE_CLIENT_ID,
-//       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-//       callbackURL: process.env.GOOGLE_CALLBACK_URL,
-//     },
-//     async (accessToken, refreshToken, profile, done) => {
-//       try {
-//         const email = profile.emails?.[0]?.value;
-//         const googleId = profile.id;
-//         const firstName = profile.name?.givenName;
-//         const lastName = profile.name?.familyName;
-//         const avatarUrl = profile.photos?.[0]?.value;
-
-//         let user = await findOne({ googleId });
-//         if (user) return done(null, user);
-
-//         user = await findOne({ email });
-//         if (user) {
-//           if (!user.googleId) {
-//             user.googleId = googleId;
-//             user.avatarUrl = user.avatarUrl || avatarUrl;
-//             await user.save();
-//           }
-//           return done(null, user);
-//         }
-
-//         user = await create({
-//           firstName,
-//           lastName,
-//           email,
-//           avatarUrl,
-//           googleId,
-//           role: "freelancer",
-//         });
-
-//         return done(null, user);
-//       } catch (err) {
-//         return done(err, null);
-//       }
-//     }
-//   )
-// );
-
-// // ✅ Google Login Start
-// app.get(
-//   "/api/auth/google",
-//   authenticate("google", { scope: ["profile", "email"] })
-// );
-
-// // ✅ Google Callback Route
-// app.get(
-//   "/api/auth/google/callback",
-//   authenticate("google", {
-//     failureRedirect: "http://localhost:5173/login",
-//   }),
-//   async (req, res) => {
-//     try {
-//       const user = await findOne({ email: req.user.email });
-//       const encodedEmail = encodeURIComponent(user.email);
-
-//       if (!user.details1 || !user.details1.expertise?.length) {
-//         return res.redirect(
-//           `http://localhost:5173/details1?email=${encodedEmail}`
-//         );
-//       }
-
-//       if (!user.details2 || !user.details2.professionalTitle) {
-//         return res.redirect(
-//           `http://localhost:5173/buildprofile?email=${encodedEmail}`
-//         );
-//       }
-
-//       return res.redirect(
-//         `http://localhost:5173/dashboard?email=${encodedEmail}`
-//       );
-//     } catch (err) {
-//       console.error("Google callback redirect error:", err);
-//       res.redirect("http://localhost:5173/login");
-//     }
-//   }
-// );
-
-// // ✅ Normal Routes
-// app.use("/api/auth", authRoutes);
-// app.use("/api/portfolio", portfolioRoutes);
-// app.use("/api/service", serviceRoutes); // ✅ moved here after app defined
-
-// // ✅ Connect MongoDB and start server
-// const PORT = process.env.PORT || 5000;
-// connectDB(process.env.MONGO_URI)
-//   .then(() => {
-//     app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
-//   })
-//   .catch((err) => console.error("❌ DB connection error:", err));
-
-
-// server.mjs or server.js (with "type": "module" in package.json)
-import "dotenv/config"; // loads .env automatically
+import "dotenv/config"; // ✅ Load .env automatically at the top
 import express, { json, static as expressStatic } from "express";
 import cors from "cors";
-import { join, dirname } from "path";
 import session from "express-session";
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
+import mongoose from "mongoose";
+import { fileURLToPath } from "url";
+import { join, dirname } from "path";
 
-import User from "./models/User.js"; // assume default export is mongoose model
+import User from "./models/User.js";
 import authRoutes from "./routes/auth.js";
 import portfolioRoutes from "./routes/portfolio.js";
 import serviceRoutes from "./routes/service.js";
-import { fileURLToPath } from "url";
-import { connect } from 'mongoose';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-// Initialize Express
+// =======================
+// 🚀 INITIAL SETUP
+// =======================
 const app = express();
 
-// CORS - allow credentials for passport sessions
+// ✅ CORS configuration
 app.use(
   cors({
     origin: "http://localhost:5173",
@@ -177,55 +30,56 @@ app.use(
   })
 );
 
-// Body parser
+// ✅ Body parser
 app.use(json({ limit: "10mb" }));
 
-// Serve uploads
+// ✅ Static uploads folder
 app.use("/uploads", expressStatic(join(__dirname, "uploads")));
 
-// Session middleware
-// NOTE: for production, replace default MemoryStore and add secure cookie settings + store
+// ✅ Session middleware
 app.use(
   session({
-    secret: process.env.SESSION_SECRET || "your_secret_key",
+    secret: process.env.SESSION_SECRET || "default_secret_key",
     resave: false,
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      // secure: true, // enable when using HTTPS in production
-      // sameSite: "none", // set carefully depending on your frontend host
-      // maxAge: 1000 * 60 * 60 * 24, // 1 day
+      maxAge: 1000 * 60 * 60 * 24, // 1 day
+      // secure: true, // uncomment for HTTPS in production
+      // sameSite: "none",
     },
   })
 );
 
-// Initialize passport
+// =======================
+// 🧭 PASSPORT CONFIG
+// =======================
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Passport serialize/deserialize
-passport.serializeUser((user, done) => {
-  // If you store full object in session, store minimal (id)
-  done(null, user._id ?? user.id);
-});
+// Serialize / Deserialize
+passport.serializeUser((user, done) => done(null, user._id ?? user.id));
 
 passport.deserializeUser(async (id, done) => {
   try {
-    const user = await User.findById(id).lean().exec();
-    done(null, user ?? null);
+    const user = await User.findById(id).lean();
+    done(null, user || null);
   } catch (err) {
     done(err, null);
   }
 });
 
-// Google OAuth strategy
+// =======================
+// 🌐 GOOGLE STRATEGY
+// =======================
 passport.use(
   new GoogleStrategy(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       callbackURL:
-        process.env.GOOGLE_CALLBACK_URL || "http://localhost:5000/api/auth/google/callback",
+        process.env.GOOGLE_CALLBACK_URL ||
+        "http://localhost:5000/api/auth/google/callback",
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
@@ -235,12 +89,9 @@ passport.use(
         const lastName = profile.name?.familyName;
         const avatarUrl = profile.photos?.[0]?.value;
 
-        // Try find by googleId
-        let user = await User.findOne({ googleId }).exec();
-        if (user) return done(null, user);
+        // Find or create user
+        let user = await User.findOne({ $or: [{ googleId }, { email }] });
 
-        // Try find by email (existing account)
-        user = await User.findOne({ email }).exec();
         if (user) {
           if (!user.googleId) {
             user.googleId = googleId;
@@ -250,17 +101,16 @@ passport.use(
           return done(null, user);
         }
 
-        // Create new user
-        const created = await User.create({
+        const newUser = await User.create({
           firstName,
           lastName,
           email,
-          avatarUrl,
           googleId,
+          avatarUrl,
           role: "freelancer",
         });
 
-        return done(null, created);
+        return done(null, newUser);
       } catch (err) {
         return done(err);
       }
@@ -268,11 +118,10 @@ passport.use(
   )
 );
 
-// Auth routes for starting OAuth and callback
-app.get(
-  "/api/auth/google",
-  passport.authenticate("google", { scope: ["profile", "email"] })
-);
+// =======================
+// 🌐 GOOGLE ROUTES
+// =======================
+app.get("/api/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
 
 app.get(
   "/api/auth/google/callback",
@@ -281,9 +130,8 @@ app.get(
     session: true,
   }),
   async (req, res) => {
-    // Redirect client depending on completeness of profile
     try {
-      const user = await User.findOne({ email: req.user.email }).exec();
+      const user = await User.findOne({ email: req.user.email });
       const encodedEmail = encodeURIComponent(user.email);
 
       if (!user.details1 || !(user.details1.expertise?.length > 0)) {
@@ -294,29 +142,68 @@ app.get(
         return res.redirect(`http://localhost:5173/buildprofile?email=${encodedEmail}`);
       }
 
-      return res.redirect(`http://localhost:5173/dashboard?email=${encodedEmail}`);
+      res.redirect(`http://localhost:5173/dashboard?email=${encodedEmail}`);
     } catch (err) {
       console.error("Google callback redirect error:", err);
-      return res.redirect("http://localhost:5173/login");
+      res.redirect("http://localhost:5173/login");
     }
   }
 );
 
-// Normal app routes (after passport/session)
+// =======================
+// 📦 NORMAL ROUTES
+// =======================
 app.use("/api/auth", authRoutes);
 app.use("/api/portfolio", portfolioRoutes);
 app.use("/api/service", serviceRoutes);
 
-
-
-
-main().catch(err => console.log(err));
-
-async function main() {
-  await connect('mongodb+srv://manikandan:Zuntra_1111@cluster0.x7incso.mongodb.net/Zuntraa?retryWrites=true&w=majority&appName=Cluster0');
-  console.log("mongodb connected")
+// =======================
+// 🧠 ENV VALIDATION
+// =======================
+if (!process.env.MONGO_URI) {
+  console.error("❌ MONGO_URI missing in .env!");
 }
-// DB + start
-app.listen(5000,()=>{
-  console.log("server connted")
-})
+if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
+  console.warn("⚠️  Google OAuth ENV missing. Check .env file!");
+}
+
+// =======================
+// 🧩 DATABASE + SERVER START
+// =======================
+// const PORT = process.env.PORT || 5000;
+
+// // ✅ Show URI for debugging (safe)
+// console.log("🔗 Connecting to MongoDB...");
+
+// mongoose
+//   .connect(process.env.MONGO_URI.trim()) // .trim() removes hidden spaces/BOM
+//   .then(() => {
+//     console.log("✅ MongoDB connected successfully");
+//     app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+//   })
+//   .catch((err) => console.error("❌ MongoDB connection failed:", err.message));
+
+// =======================
+// 🧩 DATABASE + SERVER START
+// =======================
+const PORT = process.env.PORT || 5000;
+const rawMongoUri = process.env.MONGO_URI;
+
+// 👀 Debug log to confirm actual value
+console.log("🔗 Connecting to MongoDB...");
+console.log("MONGO_URI (raw):", JSON.stringify(rawMongoUri));
+
+if (!rawMongoUri) {
+  console.error("❌ No MONGO_URI found in .env file!");
+  process.exit(1);
+}
+
+mongoose
+  .connect(rawMongoUri.trim()) // ✅ .trim() removes hidden spaces or newlines
+  .then(() => {
+    console.log("✅ MongoDB connected successfully");
+    app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+  })
+  .catch((err) => {
+    console.error("❌ MongoDB connection failed:", err.message);
+  });

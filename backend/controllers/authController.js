@@ -1,56 +1,126 @@
-
-
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 import User from "../models/User.js";
-import  compare from "bcryptjs";
+import sendOTPEmail from "../utils/sendEmail.js";
 
-import hash from "bcryptjs";
-import  sign  from "jsonwebtoken";
-import  sendOTPEmail  from "../utils/sendEmail.js";
+const salt = bcrypt.genSaltSync(10);
 
-
-
-import path from "path";
-import fs from "fs";
-
-// ✅ Generate random OTP
 function generateOTP() {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-/* ================================
-   1️⃣ REGISTER + OTP FLOW
-================================ */
+
+// export async function registerStep1(req, res) {
+//   try {
+//     const { firstName, lastName, email, password, role, avatarUrl } = req.body;
+
+//     // 🔍 Check if already registered
+//     const existing = await User.findOne({ email });
+//     if (existing)
+//       return res.status(400).json({ message: "Email already registered" });
+
+//     // 🔐 Hash password
+//     const hashedPassword = bcrypt.hashSync(password, salt);
+//     const otpCode = generateOTP();
+
+//     // 🧠 Create new user
+//     const user = await User.create({
+//       firstName,
+//       lastName,
+//       email,
+//       password: hashedPassword,
+//       role,
+//       avatarUrl,
+//       otp: { code: otpCode, expiresAt: new Date(Date.now() + 10 * 60 * 1000) }, // 10 mins
+//     });
+
+//     await sendOTPEmail(email, otpCode);
+//     res.status(200).json({ message: "OTP sent successfully", userId: user._id });
+//   } catch (err) {
+//     console.error("Register error:", err);
+//     res.status(500).json({ message: "Server error" });
+//   }
+// }
+
+// ================================
+// 1️⃣ REGISTER STEP 1
+// ================================
 export async function registerStep1(req, res) {
   try {
     const { firstName, lastName, email, password, role, avatarUrl } = req.body;
 
-    // 🔍 Check if already registered
     const existing = await User.findOne({ email });
     if (existing)
       return res.status(400).json({ message: "Email already registered" });
 
-    // 🔐 Hash password
-    const hashed = await hash(password, 10);
+    // ✅ Secure hash
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     const otpCode = generateOTP();
 
-    // 🧠 Create new user
     const user = await User.create({
       firstName,
       lastName,
       email,
-      password: hashed,
+      password: hashedPassword,
       role,
       avatarUrl,
-      otp: { code: otpCode, expiresAt: new Date(Date.now() + 10 * 60 * 1000) },
+      otp: {
+        code: otpCode,
+        expiresAt: new Date(Date.now() + 10 * 60 * 1000),
+      },
     });
 
     await sendOTPEmail(email, otpCode);
-    res.json({ message: "OTP sent successfully", userId: user._id });
+    res.status(200).json({ message: "OTP sent successfully", userId: user._id });
   } catch (err) {
     console.error("Register error:", err);
     res.status(500).json({ message: "Server error" });
   }
 }
+
+// ================================
+// 6️⃣ LOGIN
+// ================================
+export async function login(req, res) {
+  try {
+    const { email, password } = req.body;
+
+    const user = await User.findOne({ email });
+    if (!user)
+      return res.status(401).json({ message: "Invalid email or password" });
+
+    if (!user.password)
+      return res.status(400).json({
+        message: "This account was created using Google. Please login with Google.",
+      });
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch)
+      return res.status(401).json({ message: "Invalid email or password" });
+
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    res.status(200).json({
+      token,
+      user: {
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+        avatarUrl: user.avatarUrl,
+      },
+    });
+  } catch (err) {
+    console.error("Login error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+}
+
 
 /* ================================
    2️⃣ RESEND OTP
@@ -69,7 +139,7 @@ export async function resendOtp(req, res) {
     await user.save();
 
     await sendOTPEmail(email, otpCode);
-    res.json({ message: "OTP resent successfully" });
+    res.status(200).json({ message: "OTP resent successfully" });
   } catch (err) {
     console.error("Resend OTP error:", err);
     res.status(500).json({ message: "Server error" });
@@ -96,7 +166,7 @@ export async function verifyOtp(req, res) {
     user.otp = undefined;
     await user.save();
 
-    res.json({ message: "OTP verified successfully" });
+    res.status(200).json({ message: "OTP verified successfully" });
   } catch (err) {
     console.error("Verify OTP error:", err);
     res.status(500).json({ message: "Server error" });
@@ -115,7 +185,7 @@ export async function saveDetails1(req, res) {
     user.details1 = { expertise, howHeard, location };
     await user.save();
 
-    res.json({ message: "Details1 saved successfully" });
+    res.status(200).json({ message: "Details1 saved successfully" });
   } catch (err) {
     console.error("Save Details1 error:", err);
     res.status(500).json({ message: "Server error" });
@@ -154,59 +224,57 @@ export async function saveDetails2(req, res) {
 }
 
 /* ================================
-   6️⃣ LOGIN (Fixed Version)
+   6️⃣ LOGIN
 ================================ */
-export async function login(req, res) {
-  try {
-    const { email, password } = req.body;
+// export async function login(req, res) {
+//   try {
+//     const { email, password } = req.body;
 
-    // 🔍 Find user by email
-    const user = await User.findOne({ email });
-    if (!user) return res.status(401).json({ message: "Invalid email or password" });
+//     const user = await User.findOne({ email });
+//     if (!user) return res.status(401).json({ message: "Invalid email or password" });
 
-    // ⚠️ If user is Google account (no password)
-    if (!user.password) {
-      return res.status(400).json({
-        message: "This account was created using Google. Please login with Google.",
-      });
-    }
+//     // If account was created with Google
+//     if (!user.password)
+//       return res.status(400).json({
+//         message: "This account was created using Google. Please login with Google.",
+//       });
 
-    // 🔐 Compare password using bcrypt
-    const valid = await compare(password, user.password);
-    if (!valid)
-      return res.status(401).json({ message: "Invalid email or password" });
+//     // Compare password
+//     const isMatch = await bcrypt.compare(password, user.password);
+//     if (!isMatch)
+//       return res.status(401).json({ message: "Invalid email or password" });
 
-    // 🎟️ Generate JWT token
-    const token = sign(
-      { id: user._id, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: "7d" }
-    );
+//     // Generate JWT
+//     const token = jwt.sign(
+//       { id: user._id, role: user.role },
+//       process.env.JWT_SECRET,
+//       { expiresIn: "7d" }
+//     );
 
-    res.json({
-      token,
-      user: {
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        role: user.role,
-        avatarUrl: user.avatarUrl,
-        details1: user.details1,
-        details2: user.details2,
-      },
-    });
-  } catch (err) {
-    console.error("Login error:", err);
-    res.status(500).json({ message: "Server error" });
-  }
-}
+//     res.status(200).json({
+//       token,
+//       user: {
+//         email: user.email,
+//         firstName: user.firstName,
+//         lastName: user.lastName,
+//         role: user.role,
+//         avatarUrl: user.avatarUrl,
+//         details1: user.details1,
+//         details2: user.details2,
+//       },
+//     });
+//   } catch (err) {
+//     console.error("Login error:", err);
+//     res.status(500).json({ message: "Server error" });
+//   }
+// }
 
 /* ================================
    7️⃣ UPLOAD AVATAR
 ================================ */
 export async function uploadAvatar(req, res) {
   try {
-    const email = req.body.email;
+    const { email } = req.body;
     if (!req.file)
       return res.status(400).json({ message: "No file uploaded" });
 
@@ -217,8 +285,7 @@ export async function uploadAvatar(req, res) {
       { new: true }
     );
 
-    if (!user)
-      return res.status(404).json({ message: "User not found" });
+    if (!user) return res.status(404).json({ message: "User not found" });
 
     res.status(200).json({ url: fileUrl, message: "Avatar updated", user });
   } catch (err) {
@@ -234,8 +301,8 @@ export async function getUserByEmail(req, res) {
   try {
     const email = req.params.email;
     const user = await User.findOne({ email });
-    if (!user)
-      return res.status(404).json({ message: "User not found" });
+    if (!user) return res.status(404).json({ message: "User not found" });
+
     res.status(200).json(user);
   } catch (err) {
     console.error("Get user error:", err);
@@ -252,16 +319,16 @@ export async function linkAccounts(req, res) {
     const user = await User.findOne({ email: existingEmail });
     if (!user) return res.status(404).json({ message: "Existing account not found" });
 
-    const ok = await compare(password, user.password);
+    const ok = await bcrypt.compare(password, user.password);
     if (!ok) return res.status(401).json({ message: "Wrong password" });
 
-    // 🔗 Link googleId and update avatar
+    // Link googleId and update avatar
     user.googleId = googleId;
     const googleUser = await User.findOne({ email: googleEmail });
-    if (googleUser && googleUser.avatarUrl) user.avatarUrl = googleUser.avatarUrl;
+    if (googleUser?.avatarUrl) user.avatarUrl = googleUser.avatarUrl;
 
     await user.save();
-    return res.json({ message: "Accounts linked successfully", user });
+    return res.status(200).json({ message: "Accounts linked successfully", user });
   } catch (err) {
     console.error("Link accounts error:", err);
     res.status(500).json({ message: "Server error" });
