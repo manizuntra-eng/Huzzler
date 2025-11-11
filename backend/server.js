@@ -68,7 +68,7 @@ passport.deserializeUser(async (id, done) => {
     done(err, null);
   }
 });
-
+console.log("vicky)
 // =======================
 // 🌐 GOOGLE STRATEGY
 // =======================
