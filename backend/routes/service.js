@@ -48,9 +48,9 @@
 
 // module.exports = router;
 
-const express = require("express");
-const router = express.Router();
-const Service = require("../models/Service");
+import { Router } from "express";
+const router = Router();
+import Service from "../models/Service.js";
 
 // ✅ Create new service
 router.post("/", async (req, res) => {
@@ -100,4 +100,4 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

@@ -1,33 +1,31 @@
-
 // require("dotenv").config();
-// const express = require("express");
-// const cors = require("cors");
-// const path = require("path");
-// const session = require("express-session");
-// const passport = require("passport");
-// const { Strategy: GoogleStrategy } = require("passport-google-oauth20");
-// const connectDB = require("./config/db");
-// const User = require("./models/User");
-// const authRoutes = require("./routes/auth");
-// const portfolioRoutes = require("./routes/portfolio");
-// const mongoose = require("mongoose");
-// const serviceRoutes = require("./routes/service");
-// app.use("/api/service", serviceRoutes);
+// import express, { json, static } from "express";
+// import cors from "cors";
+// import { join } from "path";
+// import session from "express-session";
+// import { initialize, session as _session, serializeUser, deserializeUser, use, authenticate } from "passport";
+// import { Strategy as GoogleStrategy } from "passport-google-oauth20";
+// import connectDB from "./config/db";
+// import { findById, findOne, create } from "./models/User";
+// import authRoutes from "./routes/auth";
+// import portfolioRoutes from "./routes/portfolio";
+// import serviceRoutes from "./routes/service"; // ✅ service route correctly placed
+// import mongoose from "mongoose";
 
-
-// const app = express(); // ✅ must come before app.use()
+// // ✅ Initialize Express app FIRST
+// const app = express();
 
 // // ✅ Middlewares
 // app.use(
 //   cors({
-//     origin: "http://localhost:5173", // your frontend
+//     origin: "http://localhost:5173", // frontend URL
 //     credentials: true,
 //   })
 // );
-// app.use(express.json({ limit: "10mb" }));
-// app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+// app.use(json({ limit: "10mb" }));
+// app.use("/uploads", static(join(__dirname, "uploads")));
 
-// // ✅ Session middleware (required for passport)
+// // ✅ Session middleware
 // app.use(
 //   session({
 //     secret: process.env.SESSION_SECRET || "your_secret_key",
@@ -37,14 +35,14 @@
 // );
 
 // // ✅ Passport middleware
-// app.use(passport.initialize());
-// app.use(passport.session());
+// app.use(initialize());
+// app.use(_session());
 
-// // ✅ Serialize / Deserialize user for sessions
-// passport.serializeUser((user, done) => done(null, user.id));
-// passport.deserializeUser(async (id, done) => {
+// // ✅ Serialize / Deserialize user
+// serializeUser((user, done) => done(null, user.id));
+// deserializeUser(async (id, done) => {
 //   try {
-//     const user = await User.findById(id);
+//     const user = await findById(id);
 //     done(null, user);
 //   } catch (err) {
 //     done(err, null);
@@ -52,7 +50,7 @@
 // });
 
 // // ✅ Google OAuth Strategy
-// passport.use(
+// use(
 //   new GoogleStrategy(
 //     {
 //       clientID: process.env.GOOGLE_CLIENT_ID,
@@ -67,12 +65,10 @@
 //         const lastName = profile.name?.familyName;
 //         const avatarUrl = profile.photos?.[0]?.value;
 
-//         // 1️⃣ Try find by Google ID
-//         let user = await User.findOne({ googleId });
+//         let user = await findOne({ googleId });
 //         if (user) return done(null, user);
 
-//         // 2️⃣ Try find by email
-//         user = await User.findOne({ email });
+//         user = await findOne({ email });
 //         if (user) {
 //           if (!user.googleId) {
 //             user.googleId = googleId;
@@ -82,8 +78,7 @@
 //           return done(null, user);
 //         }
 
-//         // 3️⃣ Create new user if none found
-//         user = await User.create({
+//         user = await create({
 //           firstName,
 //           lastName,
 //           email,
@@ -103,18 +98,18 @@
 // // ✅ Google Login Start
 // app.get(
 //   "/api/auth/google",
-//   passport.authenticate("google", { scope: ["profile", "email"] })
+//   authenticate("google", { scope: ["profile", "email"] })
 // );
 
 // // ✅ Google Callback Route
 // app.get(
 //   "/api/auth/google/callback",
-//   passport.authenticate("google", {
+//   authenticate("google", {
 //     failureRedirect: "http://localhost:5173/login",
 //   }),
 //   async (req, res) => {
 //     try {
-//       const user = await User.findOne({ email: req.user.email });
+//       const user = await findOne({ email: req.user.email });
 //       const encodedEmail = encodeURIComponent(user.email);
 
 //       if (!user.details1 || !user.details1.expertise?.length) {
@@ -139,9 +134,11 @@
 //   }
 // );
 
-// // ✅ Normal Auth & Portfolio Routes
+// // ✅ Normal Routes
 // app.use("/api/auth", authRoutes);
 // app.use("/api/portfolio", portfolioRoutes);
+// app.use("/api/service", serviceRoutes); // ✅ moved here after app defined
+
 // // ✅ Connect MongoDB and start server
 // const PORT = process.env.PORT || 5000;
 // connectDB(process.env.MONGO_URI)
@@ -151,65 +148,84 @@
 //   .catch((err) => console.error("❌ DB connection error:", err));
 
 
+// server.mjs or server.js (with "type": "module" in package.json)
+import "dotenv/config"; // loads .env automatically
+import express, { json, static as expressStatic } from "express";
+import cors from "cors";
+import { join, dirname } from "path";
+import session from "express-session";
+import passport from "passport";
+import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 
-require("dotenv").config();
-const express = require("express");
-const cors = require("cors");
-const path = require("path");
-const session = require("express-session");
-const passport = require("passport");
-const { Strategy: GoogleStrategy } = require("passport-google-oauth20");
-const connectDB = require("./config/db");
-const User = require("./models/User");
-const authRoutes = require("./routes/auth");
-const portfolioRoutes = require("./routes/portfolio");
-const serviceRoutes = require("./routes/service"); // ✅ service route correctly placed
-const mongoose = require("mongoose");
+import User from "./models/User.js"; // assume default export is mongoose model
+import authRoutes from "./routes/auth.js";
+import portfolioRoutes from "./routes/portfolio.js";
+import serviceRoutes from "./routes/service.js";
+import { fileURLToPath } from "url";
+import { connect } from 'mongoose';
 
-// ✅ Initialize Express app FIRST
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+// Initialize Express
 const app = express();
 
-// ✅ Middlewares
+// CORS - allow credentials for passport sessions
 app.use(
   cors({
-    origin: "http://localhost:5173", // frontend URL
+    origin: "http://localhost:5173",
     credentials: true,
   })
 );
-app.use(express.json({ limit: "10mb" }));
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// ✅ Session middleware
+// Body parser
+app.use(json({ limit: "10mb" }));
+
+// Serve uploads
+app.use("/uploads", expressStatic(join(__dirname, "uploads")));
+
+// Session middleware
+// NOTE: for production, replace default MemoryStore and add secure cookie settings + store
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "your_secret_key",
     resave: false,
     saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      // secure: true, // enable when using HTTPS in production
+      // sameSite: "none", // set carefully depending on your frontend host
+      // maxAge: 1000 * 60 * 60 * 24, // 1 day
+    },
   })
 );
 
-// ✅ Passport middleware
+// Initialize passport
 app.use(passport.initialize());
 app.use(passport.session());
 
-// ✅ Serialize / Deserialize user
-passport.serializeUser((user, done) => done(null, user.id));
+// Passport serialize/deserialize
+passport.serializeUser((user, done) => {
+  // If you store full object in session, store minimal (id)
+  done(null, user._id ?? user.id);
+});
+
 passport.deserializeUser(async (id, done) => {
   try {
-    const user = await User.findById(id);
-    done(null, user);
+    const user = await User.findById(id).lean().exec();
+    done(null, user ?? null);
   } catch (err) {
     done(err, null);
   }
 });
 
-// ✅ Google OAuth Strategy
+// Google OAuth strategy
 passport.use(
   new GoogleStrategy(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: process.env.GOOGLE_CALLBACK_URL,
+      callbackURL:
+        process.env.GOOGLE_CALLBACK_URL || "http://localhost:5000/api/auth/google/callback",
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
@@ -219,10 +235,12 @@ passport.use(
         const lastName = profile.name?.familyName;
         const avatarUrl = profile.photos?.[0]?.value;
 
-        let user = await User.findOne({ googleId });
+        // Try find by googleId
+        let user = await User.findOne({ googleId }).exec();
         if (user) return done(null, user);
 
-        user = await User.findOne({ email });
+        // Try find by email (existing account)
+        user = await User.findOne({ email }).exec();
         if (user) {
           if (!user.googleId) {
             user.googleId = googleId;
@@ -232,7 +250,8 @@ passport.use(
           return done(null, user);
         }
 
-        user = await User.create({
+        // Create new user
+        const created = await User.create({
           firstName,
           lastName,
           email,
@@ -241,62 +260,63 @@ passport.use(
           role: "freelancer",
         });
 
-        return done(null, user);
+        return done(null, created);
       } catch (err) {
-        return done(err, null);
+        return done(err);
       }
     }
   )
 );
 
-// ✅ Google Login Start
+// Auth routes for starting OAuth and callback
 app.get(
   "/api/auth/google",
   passport.authenticate("google", { scope: ["profile", "email"] })
 );
 
-// ✅ Google Callback Route
 app.get(
   "/api/auth/google/callback",
   passport.authenticate("google", {
     failureRedirect: "http://localhost:5173/login",
+    session: true,
   }),
   async (req, res) => {
+    // Redirect client depending on completeness of profile
     try {
-      const user = await User.findOne({ email: req.user.email });
+      const user = await User.findOne({ email: req.user.email }).exec();
       const encodedEmail = encodeURIComponent(user.email);
 
-      if (!user.details1 || !user.details1.expertise?.length) {
-        return res.redirect(
-          `http://localhost:5173/details1?email=${encodedEmail}`
-        );
+      if (!user.details1 || !(user.details1.expertise?.length > 0)) {
+        return res.redirect(`http://localhost:5173/details1?email=${encodedEmail}`);
       }
 
       if (!user.details2 || !user.details2.professionalTitle) {
-        return res.redirect(
-          `http://localhost:5173/buildprofile?email=${encodedEmail}`
-        );
+        return res.redirect(`http://localhost:5173/buildprofile?email=${encodedEmail}`);
       }
 
-      return res.redirect(
-        `http://localhost:5173/dashboard?email=${encodedEmail}`
-      );
+      return res.redirect(`http://localhost:5173/dashboard?email=${encodedEmail}`);
     } catch (err) {
       console.error("Google callback redirect error:", err);
-      res.redirect("http://localhost:5173/login");
+      return res.redirect("http://localhost:5173/login");
     }
   }
 );
 
-// ✅ Normal Routes
+// Normal app routes (after passport/session)
 app.use("/api/auth", authRoutes);
 app.use("/api/portfolio", portfolioRoutes);
-app.use("/api/service", serviceRoutes); // ✅ moved here after app defined
+app.use("/api/service", serviceRoutes);
 
-// ✅ Connect MongoDB and start server
-const PORT = process.env.PORT || 5000;
-connectDB(process.env.MONGO_URI)
-  .then(() => {
-    app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
-  })
-  .catch((err) => console.error("❌ DB connection error:", err));
+
+
+
+main().catch(err => console.log(err));
+
+async function main() {
+  await connect('mongodb+srv://manikandan:Zuntra_1111@cluster0.x7incso.mongodb.net/Zuntraa?retryWrites=true&w=majority&appName=Cluster0');
+  console.log("mongodb connected")
+}
+// DB + start
+app.listen(5000,()=>{
+  console.log("server connted")
+})

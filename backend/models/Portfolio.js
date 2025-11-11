@@ -1,6 +1,6 @@
-const mongoose = require("mongoose");
+import { Schema, model } from "mongoose";
 
-const portfolioSchema = new mongoose.Schema(
+const portfolioSchema = new Schema(
   {
     email: { type: String, required: true },
     projectTitle: { type: String, required: true },
@@ -13,4 +13,4 @@ const portfolioSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Portfolio", portfolioSchema);
+export default model("Portfolio", portfolioSchema);

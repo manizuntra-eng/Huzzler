@@ -1,14 +1,14 @@
-const express = require("express");
-const multer = require("multer");
-const path = require("path");
-const router = express.Router();
-const Portfolio = require("../models/Portfolio");
+import { Router } from "express";
+import multer, { diskStorage } from "multer";
+import { extname } from "path";
+const router = Router();
+import Portfolio from "../models/Portfolio.js";
 
 // ✅ Multer setup
-const storage = multer.diskStorage({
+const storage = diskStorage({
   destination: (req, file, cb) => cb(null, "uploads/portfolio"),
   filename: (req, file, cb) =>
-    cb(null, `${Date.now()}${path.extname(file.originalname)}`)
+    cb(null, `${Date.now()}${extname(file.originalname)}`)
 });
 const upload = multer({ storage });
 
@@ -63,4 +63,4 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

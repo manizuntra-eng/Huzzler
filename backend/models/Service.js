@@ -1,6 +1,6 @@
-const mongoose = require("mongoose");
+import { Schema, model } from "mongoose";
 
-const serviceSchema = new mongoose.Schema(
+const serviceSchema = new Schema(
   {
     userEmail: { type: String, required: true }, // who created it
     title: String,
@@ -16,4 +16,4 @@ const serviceSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Service", serviceSchema);
+export default model("Service", serviceSchema);

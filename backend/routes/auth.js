@@ -1,26 +1,17 @@
-const express = require("express");
-const multer = require("multer");
-const path = require("path");
-const router = express.Router();
+import { Router } from "express";
+import multer, { diskStorage } from "multer";
+import { extname } from "path";
+const router = Router();
 
-const {
-  registerStep1,
-  resendOtp,
-  verifyOtp,
-  saveDetails1,
-  saveDetails2,
-  login,
-  uploadAvatar,
-  getUserByEmail
-} = require("../controllers/authController");
+import { registerStep1, resendOtp, verifyOtp, saveDetails1, saveDetails2, login, uploadAvatar, getUserByEmail } from "../controllers/authController.js";
 
 
 
 // ✅ Multer setup
-const storage = multer.diskStorage({
+const storage = diskStorage({
   destination: (req, file, cb) => cb(null, "uploads/"),
   filename: (req, file, cb) =>
-    cb(null, `${Date.now()}${path.extname(file.originalname)}`)
+    cb(null, `${Date.now()}${extname(file.originalname)}`)
 });
 const upload = multer({ storage });
 
@@ -41,4 +32,4 @@ router.get('/test', (req, res) => {
 
 
 
-module.exports = router;
+export default router;
