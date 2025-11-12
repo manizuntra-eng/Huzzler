@@ -148,7 +148,7 @@ app.use("/api/portfolio", portfolioRoutes);
 app.use("/api/service", serviceRoutes);
 app.use("/api/users", accountDetailsRoutes);
 app.use("/api/Work",WorkRouter);
-
+console.log("vicky")
 // =======================
 // 🧑‍💼 ACCOUNT DETAILS CRUD (your new code)
 // =======================
