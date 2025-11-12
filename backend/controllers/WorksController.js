@@ -1,5 +1,4 @@
 
-import workModel from '../models/Works.js';
 import Work from '../models/Works.js'
 
 export const createWork = async (req, res) => {

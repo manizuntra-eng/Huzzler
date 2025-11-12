@@ -148,11 +148,13 @@ app.use("/api/portfolio", portfolioRoutes);
 app.use("/api/service", serviceRoutes);
 app.use("/api/users", accountDetailsRoutes);
 app.use("/api/Work",WorkRouter);
+app.use("/api/profile",profileRouter)
 console.log("vicky")
 // =======================
 // 🧑‍💼 ACCOUNT DETAILS CRUD (your new code)
 // =======================
 import bcrypt from "bcryptjs";
+import profileRouter from "./routes/Profile.js";
 
 // ➕ Create new user
 app.post("/api/users", async (req, res) => {
