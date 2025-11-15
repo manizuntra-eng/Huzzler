@@ -1,5 +1,5 @@
 import { Outlet } from "react-router-dom";
-import Sidebar from "./components/Sidebar";
+import Sidebar from "./Freelancerpage/components/Sidebar";
 
 export default function FreelancerDashboard() {
   return (

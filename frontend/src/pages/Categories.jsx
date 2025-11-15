@@ -1,7 +1,7 @@
 import React from "react";
 import { FiSearch, FiArrowLeft } from "react-icons/fi";
 import categoriesImg from "../assets/categories.jpeg";
-import Sidebar from "./components/Sidebar";
+import Sidebar from "./Freelancerpage/components/Sidebar";
 import profile from "../assets/profile.png";
 
 const Categories = () => {

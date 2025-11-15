@@ -36,17 +36,17 @@ export default function Sidebar() {
             <button className="nav-btn" onClick={() => navigate("/myjobs")}>
               <Briefcase size={18} /> My Jobs
             </button>
-             <button className="nav-btn" onClick={() => navigate("/clientservicelistpage")}>
+             <button className="nav-btn" onClick={() => navigate("/client-dashbroad2/clientservicelistpage")}>
               <Briefcase size={18} /> My service
             </button>
 
             {/* PROFILE */}
-            <button className="nav-btn" onClick={() => navigate("/client-dashbroad2/profile")}>
+            <button className="nav-btn" onClick={() => navigate("/client-dashbroad2/clientprofile")}>
               <User size={18} /> Profile
             </button>
 
             {/* SETTINGS */}
-            <button className="nav-btn" onClick={() => navigate("/client-dashboard/settings")}>
+            <button className="nav-btn" onClick={() => navigate("/client-dashbroad2/settings")}>
               <Settings size={18} /> Settings
             </button>
 
@@ -62,7 +62,7 @@ export default function Sidebar() {
         <div className="user-info">
           <div className="user-avatar">JA</div>
           <div>
-            <p className="user-name"   onClick={() => navigate("/client-dashboard/account-details")}>James Andrew</p>
+            <p className="user-name"   onClick={() => navigate("/client-dashbroad2/account-details")}>James Andrew</p>
             <p className="user-status">Premium Member</p>
           </div>
         </div>

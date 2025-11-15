@@ -1,29 +1,33 @@
 import React, { useState } from "react";
-import styled from "styled-components";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import styled from "styled-components";
 
-const ClientDetails2 = () => {
+const ClientDetails1 = () => {
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const email = searchParams.get("email");
-  const navigate = useNavigate();
 
   const [form, setForm] = useState({
-    category: "",
-    referral: "",
-    location: "",
-    linkedin: "",
+    companyName: "",
+    aboutBusiness: "",
+    employees: "",
+    individual: false,
   });
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    setForm((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Client Details Step 2:", form);
-    navigate(`/client-dashboard?email=${encodeURIComponent(email)}`); // ✅ pass email to dashboard
-  };
+   const handleSubmit = (e) => {
+  e.preventDefault();
+  console.log("Client Details Step 2:", form);
+  navigate(`/client-details1?email=${encodeURIComponent(email)}`);
+};
+
 
   return (
     <Wrapper>
@@ -35,7 +39,9 @@ const ClientDetails2 = () => {
             &lt; <span>Sign up as a client</span>
           </button>
 
-          <h2 className="heading">Set Up Your Profile For Your Workspace</h2>
+          <h2 className="heading">
+            Let’s Get To Know You. We Promise It’s Quick And Painless!
+          </h2>
 
           <form onSubmit={handleSubmit}>
             <div className="image-section">
@@ -58,50 +64,45 @@ const ClientDetails2 = () => {
             </div>
 
             <div className="form-fields">
-              <label>Which category best describes your needs?</label>
+              <label>What is your name of your company?</label>
               <input
                 type="text"
-                name="category"
-                placeholder="e.g., Video & Audio"
-                value={form.category}
+                name="companyName"
+                value={form.companyName}
                 onChange={handleChange}
+                placeholder="Company name"
                 required
               />
 
-              <label>How did you hear about us?</label>
-              <select
-                name="referral"
-                value={form.referral}
+              <label>Tell about your business?</label>
+              <input
+                type="text"
+                name="aboutBusiness"
+                value={form.aboutBusiness}
                 onChange={handleChange}
+                placeholder="e.g., I'm the owner of Soft Soln, that is in ECR..."
                 required
-              >
-                <option value="">Select</option>
-                <option value="linkedin">LinkedIn</option>
-                <option value="facebook">Facebook</option>
-                <option value="instagram">Instagram</option>
-                <option value="referral">Friend / Referral</option>
-                <option value="other">Other</option>
-              </select>
-
-              <label>Where are you located?</label>
-              <input
-                type="text"
-                name="location"
-                placeholder="e.g., Chennai, Mumbai"
-                value={form.location}
-                onChange={handleChange}
               />
 
-              <label>Linkedin URL</label>
+              <label>How many people working in your company</label>
               <input
                 type="text"
-                name="linkedin"
-                placeholder="Paste your LinkedIn profile link"
-                value={form.linkedin}
+                name="employees"
+                value={form.employees}
                 onChange={handleChange}
+                placeholder="10-25, 25-50"
               />
 
-              <p className="small-link">I don’t have a LinkedIn account</p>
+              <div className="checkbox">
+                <input
+                  type="checkbox"
+                  id="individual"
+                  name="individual"
+                  checked={form.individual}
+                  onChange={handleChange}
+                />
+                <label htmlFor="individual">Individual</label>
+              </div>
 
               <button type="submit" className="continue-btn">
                 Continue
@@ -114,7 +115,7 @@ const ClientDetails2 = () => {
   );
 };
 
-export default ClientDetails2;
+export default ClientDetails1;
 
 /* ===================== STYLES ===================== */
 const Wrapper = styled.div`
@@ -195,8 +196,7 @@ const Wrapper = styled.div`
       font-weight: 500;
     }
 
-    input,
-    select {
+    input[type="text"] {
       padding: 10px 14px;
       border: 1px solid #ccc;
       border-radius: 8px;
@@ -208,18 +208,15 @@ const Wrapper = styled.div`
       }
     }
 
-    select {
-      background: #fff;
-      appearance: none;
-      cursor: pointer;
-    }
+    .checkbox {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
 
-    .small-link {
-      font-size: 12px;
-      color: #666;
-      text-decoration: underline;
-      cursor: pointer;
-      margin-top: -5px;
+      label {
+        font-size: 14px;
+      }
     }
 
     .continue-btn {

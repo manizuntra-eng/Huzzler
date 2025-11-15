@@ -308,7 +308,7 @@ import {
   Plus,
   X,
 } from "lucide-react";
-import Sidebar from "../pages/components/Sidebar";
+import Sidebar from "./Freelancerpage/components/Sidebar";
 
 export default function MyJobs() {
   const [jobs, setJobs] = useState([]);

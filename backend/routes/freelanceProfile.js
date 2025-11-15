@@ -1,15 +1,24 @@
-
-// freelanceProfile.js
 import express from "express";
-import { createfreelenceProfile, deletefreelenceProfile, getfreelenceProfileById, getfreelenceProfiles, updatefreelenceProfile } from "../controllers/freelanceprofilecontroller.js";
+import {
+  createfreelenceProfile,
+  updatefreelenceProfile,
+  addfreelancerPortfolioItem,
+  deletefreelancerPortfolioItem,
+  updatePortfolioItemById,
+  deletefreelenceProfile,
+  getProfileById
+} from "../controllers/freelanceprofilecontroller.js";
 
-const freelanceProfilerouter = express.Router();
+const router = express.Router();
 
-// Routes
-freelanceProfilerouter.post("/createfreelenceProfiles",createfreelenceProfile );
-freelanceProfilerouter.get("/getfreelenceProfiles", getfreelenceProfiles);
-freelanceProfilerouter.get("/getfreelenceProfileById/:id",getfreelenceProfileById);
-freelanceProfilerouter.put("/updatefreelenceProfile/:id", updatefreelenceProfile);
-freelanceProfilerouter.delete("/deletefreelenceProfile/:id",deletefreelenceProfile);
+router.post("/create", createfreelenceProfile);
+router.get("/user/:userId",  getProfileById);
+router.put("/update/:id", updatefreelenceProfile);
 
-export default freelanceProfilerouter;
+router.post("/portfolio/add/:id", addfreelancerPortfolioItem);
+router.put("/portfolio/update/:profileId/:portfolioId", updatePortfolioItemById);
+router.delete("/portfolio/delete/:profileId/:portfolioId", deletefreelancerPortfolioItem);
+
+
+router.delete("/deletefreelenceProfile/:id",deletefreelenceProfile)
+export default router;

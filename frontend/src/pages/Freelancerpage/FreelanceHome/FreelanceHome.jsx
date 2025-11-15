@@ -37,7 +37,7 @@ const Dashboard = () => {
     <>
       <main className="dashboard">
         <div className="page-wrapper">
-          <h2 className="title">Available Services.....</h2>
+          <h2 className="title">Available Services freelancer</h2>
 
           <div className="work-grid">
             {projects.map((work) => (

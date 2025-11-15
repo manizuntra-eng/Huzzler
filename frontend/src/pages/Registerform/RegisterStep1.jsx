@@ -1,49 +1,11 @@
-// import { useState } from 'react';
-// import API from '../api/client';
-// import { useNavigate, useSearchParams } from 'react-router-dom';
-
-// export default function RegisterStep1(){
-//   const [form,setForm] = useState({ firstName:'', lastName:'', email:'', password:'', avatarUrl:'' });
-//   const [loading,setLoading] = useState(false);
-//   const nav = useNavigate();
-//   const [searchParams] = useSearchParams();
-//   const role = searchParams.get('role') || 'freelancer';
-
-//   const handleSubmit = async (e)=>{ e.preventDefault(); setLoading(true);
-//     try{
-//       await API.post('/auth/register', {...form, role});
-//       nav(`/verify-otp?email=${encodeURIComponent(form.email)}`);
-//     }catch(err){ alert(err?.response?.data?.message || 'Error'); }finally{setLoading(false)}
-//   }
-
-//   return (
-//     <div className="max-w-md mx-auto py-10">
-//       <h2 className="text-2xl mb-4">Sign up ({role})</h2>
-//       <form onSubmit={handleSubmit} className="flex flex-col gap-2">
-//         <input className="p-2 border" placeholder="First name" value={form.firstName} onChange={e=>setForm({...form, firstName:e.target.value})} required />
-//         <input className="p-2 border" placeholder="Last name" value={form.lastName} onChange={e=>setForm({...form, lastName:e.target.value})} required />
-//         <input className="p-2 border" placeholder="Email" value={form.email} onChange={e=>setForm({...form, email:e.target.value})} required />
-//         <input className="p-2 border" placeholder="Password" value={form.password} type="password" onChange={e=>setForm({...form, password:e.target.value})} required />
-//         <button className="p-2 bg-blue-600 text-white" type="submit" disabled={loading}>Continue</button>
-//         <a href="http://localhost:5000/api/auth/google" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
-//          <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" alt="Google"style={{ height: '30px', verticalAlign: 'middle' }}/><span>Sign in with Google</span>
-//         </a>
-//       </form>
-//     </div>
-//   )
-// }
-
-
-
 
 import React, { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import API from "../api/client";
-
-import "../styles/Signupstep1.css";
-import Profilepic from "../assets/Profilepic.png";
-import facebook from "../assets/facebook.png";
+import API from "../../api/client";
+import "./Signupstep1.css";
+import Profilepic from "../../assets/profile.png";
+import facebook from "../../assets/facebook.png";
 
 const Signupstep1 = () => {
   const [showPassword, setShowPassword] = useState(false);

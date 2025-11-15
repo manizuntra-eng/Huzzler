@@ -1,16 +1,14 @@
-// frontend/src/pages/ClientRegister.jsx 
-
 
 import React, { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import API from "../api/client";
+import API from "../../api/client";
 
-import "../styles/Signupstep1.css";
-import Profilepic from "../assets/Profilepic.png";
-import facebook from "../assets/facebook.png";
+import "../../pages/Registerform/Signupstep1.css";
+import Profilepic from "../../assets/Profilepic.png";
+import facebook from "../../assets/facebook.png";
 
-const Signupstep1 = () => {
+const ClientRegister = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [image, setImage] = useState(null);
   const [form, setForm] = useState({
@@ -38,8 +36,11 @@ const Signupstep1 = () => {
     e.preventDefault();
     setLoading(true);
     try {
+      // 🔹 Send registration data to backend
       await API.post("/auth/register", { ...form, role });
-      nav(`/verify-otp?email=${encodeURIComponent(form.email)}`);
+
+      // ✅ Navigate to OTP verification page after registration
+      nav(`/client-verify?email=${encodeURIComponent(form.email)}`);
     } catch (err) {
       alert(err?.response?.data?.message || "Error while registering");
     } finally {
@@ -54,13 +55,15 @@ const Signupstep1 = () => {
       <div className="signup-wrapper">
         <div className="signup-card">
           <div className="signup-header">
-            <span className="back-symbol">&lt;</span>
+            <span className="back-symbol" onClick={() => nav(-1)}>
+              &lt;
+            </span>
             <h3>Sign up as a Client</h3>
             <p>Let’s get to know you. We promise it’ll be quick.</p>
           </div>
 
           <form className="signup-body" onSubmit={handleSubmit}>
-            {/* Upload image section */}
+            {/* Upload Image Section */}
             <div className="image-upload">
               <label htmlFor="upload">
                 {image ? (
@@ -82,9 +85,10 @@ const Signupstep1 = () => {
                   hidden
                 />
               </label>
+              <p className="upload-text">Upload Image</p>
             </div>
 
-            {/* Signup form section */}
+            {/* Signup Form Section */}
             <div className="form-section">
               <div className="social-buttons">
                 <a
@@ -187,5 +191,4 @@ const Signupstep1 = () => {
   );
 };
 
-export default Signupstep1;
-
+export default ClientRegister;

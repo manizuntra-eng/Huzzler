@@ -37,7 +37,7 @@ const ClientHome = () => {
     <>
       <main className="dashboard">
         <div className="page-wrapper">
-          <h2 className="title">Available Services vickys</h2>
+          <h2 className="title">Available Services client</h2>
 
           <div className="work-grid">
             {projects.map((work) => (

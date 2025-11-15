@@ -18,6 +18,7 @@ import accountDetailsRoutes from "./routes/accountDetails.js";
 import WorkRouter from "./routes/WorkRouter.js";
 import ClientRouter from "./routes/ClientWork.js";
 import Jobproposalrouter from "./routes/JobProposal.js"
+import FreelanceProfilerouter from "./routes/freelanceProfile.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -144,6 +145,7 @@ app.use("/api/users", accountDetailsRoutes);
 app.use("/api/Work",WorkRouter);
 app.use("/api/ClientWork",ClientRouter)
 app.use("/api/jobproposal",Jobproposalrouter)
+app.use("/api/freelanceprofile",FreelanceProfilerouter)
 console.log("vicky")
 // =======================
 // 🧑‍💼 ACCOUNT DETAILS CRUD (your new code)

@@ -2,17 +2,17 @@ import { Routes, Route } from "react-router-dom";
 
 // Auth Pages
 import RoleSelect from "./pages/RoleSelect";
-import RegisterStep1 from "./pages/RegisterStep1";
-import ClientRegisterStep1 from "./pages/ClientRegisterStep1";
+import RegisterStep1 from "./pages/Registerform/RegisterStep1";
+import ClientRegisterStep1 from "./pages/Registerform/ClientRegister/ClientRegisterStep1";
 import OTPVerify from "./pages/OTPVerify";
-import ClientOtpVerify from "./pages/ClientOtpVerify";
-import LoginSelect from "./pages/LoginSelect";
-import LoginForm from "./pages/LoginForm";
+import ClientOtpVerify from "./pages/Clientotpverifiy/ClientOtpVerify";
+import LoginSelect from "./pages/LoginForm/LoginSelect";
+import LoginForm from "./pages/LoginForm/LoginForm";
 
 // Profile Setup
 import Details1 from "./pages/Details1";
 import Details2 from "./pages/Details2";
-import ClientDetails1 from "./pages/ClientDetails1";
+import ClientDetails1 from "./pages/Freelancerpage/Freelancerdetaildashpage/ClientDetails1";
 
 import BuildProfile from "./pages/BuildProfile";
 import AfterSubmitBuildProfile from "./pages/AfterSmbmiteBuildProfile";
@@ -21,14 +21,14 @@ import AfterSubmitBuildProfile from "./pages/AfterSmbmiteBuildProfile";
 import Dashboard from "./pages/Dashboard";
 
 // Client Dashboard (Layout Page)
-import ClientDashboard from "./pages/ClientDashBoard";
+
 import ClientDashboard2 from "./pages/ClientDashbroad2";
 
 // Client Pages (Dynamic content)
-import AccountDetails from "./pages/AccountDetails";
+import AccountDetails from "./pages/Accountpages/AccountDetails";
 import Settings from "./pages/Settings";
 import Dash from "./pages/Dash";
-import ClientServiceListPage from "./pages/ClientServiceListPage";
+import ClientServiceListPage from "./pages/Clientpages/Clientservicepage/ClientServiceListPage";
 
 // Services
 import SkillHub from "./pages/Skillhub";
@@ -44,20 +44,22 @@ import AddPortfolioPage from "./pages/AddPortfolioPage";
 import TestConnection from "./pages/TestConnection";
 import ServiceDetailsModal from "./pages/ServiceDetailsModal";
 import MyJobs from "./pages/MyJobs";
-import  CreateService  from "./pages/CreateService";
+import  CreateService  from "./pages/Clientpages/CreateserviceClient/CreateService";
 import BrowseProjects from "./pages/BrowseProjects";
 import FreelancerProfile from "./pages/FreelancerProfile";
-import Profile from "./pages/Profile";
+import Profile from "./pages/Freelancerpage/FreelancerProfile/Profile";
+import ClientProfile from "./pages/Clientpages/ClientProfile/ClientProfile"
 import Categories from "./pages/Categories";
-import FreelanceHome from "./pages/FreelanceHome";
+import FreelanceHome from "./pages/Freelancerpage/FreelanceHome/FreelanceHome";
 
 import FreelancerDashboard from "./pages/Freelancehomedash"
 
 import Homeclient from "./pages/Clientpages/home/Home"
 // import Clientslider from "./pages/Clientpages/slidebar/ClientSidebar"
-import Sidebar from "./pages/components/Sidebar";
+import Sidebar from "./pages/Freelancerpage/components/Sidebar";
 import ClientSidebar from "./pages/Clientpages/slidebar/ClientSidebar"
 import ClientHome from "./pages/Clientpages/home/Home";
+import ClientDetails2 from "./pages/Clientpages/ClientDetaildashpage/ClientDetails2";
 
 export default function App() {
   return (
@@ -90,25 +92,28 @@ export default function App() {
   <Route path="/" element={<LoginSelect />} />
   <Route path="/login" element={<LoginForm />} />
 
-  {/* CLIENT DASHBOARD */}
-  <Route path="/client-dashbroad2" element={<ClientDashboard2 />}>
-    <Route index element={<ClientHome />} />
-    <Route path="clienthome" element={<ClientHome />} />
-    <Route path="profile" element={<Profile />} />
-    <Route path="categories" element={<Categories />} />
-    <Route path="serviceDetailsModel/:id" element={<ServiceDetailsModal />} />
-  </Route>
+<Route path="/client-details2" element={<ClientDetails2 />} />
 
-  {/* FREELANCER DASHBOARD */}
-  <Route path="/freelance-dashboard" element={<FreelancerDashboard />}>
-    <Route index element={<FreelanceHome />} />
-    <Route path="browse-projects" element={<BrowseProjects />} />
-    <Route path="account-details" element={<AccountDetails />} />
-    <Route path="settings" element={<Settings />} />
-    <Route path="categories" element={<Categories />} />
-    <Route path="profile" element={<Profile />} />
-  </Route>
+      {/* CLIENT DASHBOARD */}
+      <Route path="/client-dashbroad2" element={<ClientDashboard2 />}>
+        <Route index element={<ClientHome />} />
+        <Route path="clienthome" element={<ClientHome />} />
+        <Route path="clientprofile" element={<ClientProfile userType={"client"}/>} />
+        <Route path="categories" element={<Categories />} />
+        <Route path="clientservicelistpage" element={<ClientServiceListPage />} />
+        <Route path="serviceDetailsModel/:id" element={<ServiceDetailsModal />} />
+         <Route path="account-details" element={<AccountDetails />} />
+      </Route>
 
+      {/* FREELANCER DASHBOARD */}
+      <Route path="/freelance-dashboard" element={<FreelancerDashboard />}>
+        <Route index element={<FreelanceHome />} />
+        <Route path="browse-projects" element={<BrowseProjects />} />
+        <Route path="account-details" element={<AccountDetails />} />
+        <Route path="settings" element={<Settings />} />
+        <Route path="categories" element={<Categories />} />
+        <Route path="profile" element={<Profile userType={"freelancer"}/>} />
+      </Route>
 
 
 
@@ -133,12 +138,13 @@ export default function App() {
 
       <Route path="/myjobs" element={<MyJobs />} />
       <Route path="/createservice" element={<CreateService />} />
-
+      <Route path="/create-service24" element={<CreateService/>}/>
 
         {/* ========== client home ========== */}
 
         <Route path="/clienthome" element={<Homeclient/>} />
          <Route path="/slidebar" element={<Sidebar/>} />
+          <Route path="/ClientSidebar" element={<ClientSidebar/>} />
           <Route path="/ClientSidebar" element={<ClientSidebar/>} />
          
          

@@ -1,119 +1,92 @@
 import freelanceProfilemodel from "../models/freelenceprofilemodel.js";
 
-
-// Create freelenceProfile
+// Create new profile (no user check)
 export const createfreelenceProfile = async (req, res) => {
   try {
-    const freelenceprofile = await freelanceProfilemodel.create(req.body);
-
-    res.status(201).json({
-      success: true,
-      message: "freelenceProfile created successfully",
-      data: freelenceprofile,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Failed to create freelenceprofile",
-      error: error.message,
-    });
+    const profile = await freelanceProfilemodel.create(req.body);
+    return res.status(201).json({ success: true, data: profile });
+  } catch (err) {
+    return res.status(500).json({ success: false, error: err.message });
   }
 };
 
-// Get All freelenceProfiles
-export const getfreelenceProfiles = async (req, res) => {
+// Get profile by ID
+export const getProfileById = async (req, res) => {
   try {
-    const freelenceprofiles = await freelanceProfilemodel.find();
-
-    res.status(200).json({
-      success: true,
-      data: freelenceprofiles,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Failed to fetch freelenceprofiles",
-      error: error.message,
-    });
+    const profile = await freelanceProfilemodel.findById(req.params.id);
+    if (!profile) return res.status(404).json({ success: false, message: "Profile not found" });
+    return res.status(200).json({ success: true, data: profile });
+  } catch (err) {
+    return res.status(500).json({ success: false, error: err.message });
   }
 };
 
-// Get Single freelenceProfile
-export const getfreelenceProfileById = async (req, res) => {
-  try {
-    const freelenceprofile = await freelanceProfilemodel.findById(req.params.id);
-
-    if (!freelenceprofile) {
-      return res.status(404).json({
-        success: false,
-        message: "freelenceProfile not found",
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      data: freelenceprofile,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Failed to fetch freelenceprofile",
-      error: error.message,
-    });
-  }
-};
-
-// Update freelenceProfile
+// Update profile by ID
 export const updatefreelenceProfile = async (req, res) => {
   try {
-    const freelenceprofile = await freelanceProfilemodel.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
-
-    if (!freelenceprofile) {
-      return res.status(404).json({
-        success: false,
-        message: "freelenceProfile not found",
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "freelenceProfile updated successfully",
-      data: freelenceprofile,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Failed to update freelenceprofile",
-      error: error.message,
-    });
+    const updated = await freelanceProfilemodel.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    return res.status(200).json({ success: true, data: updated });
+  } catch (err) {
+    return res.status(500).json({ success: false, error: err.message });
   }
 };
 
-// Delete freelenceProfile
+// Add portfolio item by profile ID
+export const addfreelancerPortfolioItem = async (req, res) => {
+  try {
+    const updated = await freelanceProfilemodel.findByIdAndUpdate(
+      req.params.id,
+      { $push: { Portfolio: req.body } },
+      { new: true }
+    );
+    return res.status(200).json({ success: true, data: updated });
+  } catch (err) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+};
+
+// Update portfolio item by ID
+export const updatePortfolioItemById = async (req, res) => {
+  try {
+    const { profileId, portfolioId } = req.params;
+    const updated = await freelanceProfilemodel.findOneAndUpdate(
+      { _id: profileId, "Portfolio._id": portfolioId },
+      {
+        $set: {
+          "Portfolio.$.portfolio_ProjectTitle": req.body.portfolio_ProjectTitle,
+          "Portfolio.$.ProjectDescription": req.body.ProjectDescription,
+          "Portfolio.$.Upload_ProjectURL": req.body.Upload_ProjectURL,
+        },
+      },
+      { new: true }
+    );
+    return res.status(200).json({ success: true, data: updated });
+  } catch (err) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+};
+
+// Delete portfolio item by ID
+export const deletefreelancerPortfolioItem = async (req, res) => {
+  try {
+    const updated = await freelanceProfilemodel.findByIdAndUpdate(
+      req.params.profileId,
+      { $pull: { Portfolio: { _id: req.params.portfolioId } } },
+      { new: true }
+    );
+    return res.status(200).json({ success: true, data: updated });
+  } catch (err) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+};
+
+// Delete profile by ID
 export const deletefreelenceProfile = async (req, res) => {
   try {
-    const freelenceprofile = await freelanceProfilemodel.findByIdAndDelete(req.params.id);
-
-    if (!freelenceprofile) {
-      return res.status(404).json({
-        success: false,
-        message: "freelenceProfile not found",
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "freelenceProfile deleted successfully",
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Failed to delete freelenceprofile",
-      error: error.message,
-    });
-  }
+    const deletedProfile = await freelanceProfilemodel.findByIdAndDelete(req.params.id);
+    if (!deletedProfile) return res.status(404).json({ success: false, message: "Profile not found" });
+    return res.status(200).json({ success: true, message: "Profile deleted successfully", data: deletedProfile });
+  } catch (err) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
 };

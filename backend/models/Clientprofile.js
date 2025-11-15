@@ -8,7 +8,8 @@ const portfolioSchema = new mongoose.Schema({
 
 const profileSchema = new mongoose.Schema(
   {
-    UserId: {  type: mongoose.Schema.Types.ObjectId, ref: 'freelanceprofileid', unique: true },
+    UserId: { type: String, required: true, unique: true },
+
     ProfileName: { type: String, required: true, trim: true },
     About: { type: String, required: true },
 
@@ -21,5 +22,5 @@ const profileSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const FreelanceProfilemodel = mongoose.model("freelanceProfile", profileSchema);
-export default FreelanceProfilemodel;
+const ClientProfilemodel = mongoose.model("CLientProfile", profileSchema);
+export default ClientProfilemodel;

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { ArrowLeft, ChevronRight, Plus } from "lucide-react";
-import ServiceDetailsModal from "./ServiceDetailsModal.jsx";
+import ServiceDetailsModal from "../../ServiceDetailsModal.jsx";
 
 const ServiceListPage = () => {
   const [activeTab, setActiveTab] = useState("Work");
