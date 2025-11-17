@@ -1,0 +1,81 @@
+.pro-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f1f5f9;
+  padding: 16px;
+}
+
+.pro-card {
+  background: #fff;
+  padding: 32px;
+  border-radius: 16px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+  width: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.logo {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 16px;
+}
+
+h2 {
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  margin-bottom: 24px;
+  color: #555;
+  text-align: center;
+}
+
+.input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 16px;
+  border-radius: 12px;
+  border: 1px solid #ccc;
+}
+
+.status-box {
+  font-weight: 600;
+  margin-bottom: 8px;
+  width: 100%;
+}
+
+.status-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  width: 100%;
+}
+
+.status-row button {
+  flex: 1;
+  padding: 12px 0;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  cursor: pointer;
+  background: #f1f1f1;
+  font-weight: 500;
+}
+
+.status-row button.selected {
+  background: #fdd835; /* yellow */
+  border-color: #fdd835;
+}
+
+.yellow-btn {
+  width: 100%;
+  padding: 14px;
+  background: #fdd835;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}

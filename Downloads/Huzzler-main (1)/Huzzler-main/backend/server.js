@@ -149,7 +149,7 @@ console.log("happy coding")
 // =======================
 // 🧑‍💼 ACCOUNT DETAILS CRUD (your new code)
 // =======================
-
+console.log("woork")
 
 // ➕ Create new user
 app.post("/api/users", async (req, res) => {
